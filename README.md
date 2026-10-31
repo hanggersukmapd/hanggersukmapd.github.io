@@ -6,7 +6,8 @@ JavaScript — hanya HTML, Tailwind CSS (build statis), dan JavaScript murni yan
 dimodularisasi.
 
 **Live:** https://hanggersukmapd.github.io/  
-**Repo:** https://github.com/hanggersukmapd/hanggersukmapd.github.io
+**Repo:** https://github.com/hanggersukmapd/hanggersukmapd.github.io  
+**Status & panduan akses:** [PROGRESS.md](PROGRESS.md)
 
 - **Nama:** Hangger Sukma Prima Darsono
 - **Role:** Informatics Engineering Student | Data Science, Machine Learning & Web Development Enthusiast

@@ -1,9 +1,12 @@
 # Hangger Sukma Prima Darsono — Portfolio (v2)
 
-Portofolio profesional satu halaman yang dibangun ulang dengan pendekatan
-**bento grid + glassmorphism**, animasi halus, dan komponen interaktif.
-Tanpa framework JavaScript — hanya HTML, Tailwind CSS (CDN), dan JavaScript
-murni yang dimodularisasi.
+Portofolio profesional satu halaman dengan pendekatan **bento grid +
+glassmorphism**, animasi halus, dan komponen interaktif. Tanpa framework
+JavaScript — hanya HTML, Tailwind CSS (build statis), dan JavaScript murni yang
+dimodularisasi.
+
+**Live:** https://hanggersukmapd.github.io/  
+**Repo:** https://github.com/hanggersukmapd/hanggersukmapd.github.io
 
 - **Nama:** Hangger Sukma Prima Darsono
 - **Role:** Informatics Engineering Student | Data Science, Machine Learning & Web Development Enthusiast
@@ -42,6 +45,8 @@ murni yang dimodularisasi.
 ├── scripts/
 │   ├── og-cover.html           # Sumber render og-cover.png
 │   └── icon.html               # Sumber render ikon PNG
+├── .github/
+│   └── workflows/deploy.yml    # CI: build Tailwind + deploy GitHub Pages
 └── README.md                   # Dokumentasi ini
 ```
 
@@ -108,16 +113,37 @@ Contoh: `http://192.168.1.7:8080`. Cek IP dengan `ipconfig` (Windows) atau
   otomatis memakai fallback `execCommand`). Untuk URL publik permanen, gunakan
   deploy statis di bagian berikut.
 
-### Deploy
+### Deploy (sudah aktif)
 
-Situs ini 100% statis, jadi bisa langsung diunggah ke layanan hosting statis
-mana pun:
+Situs live di **https://hanggersukmapd.github.io/** pada repo
+`hanggersukmapd/hanggersukmapd.github.io` (publik, Pages source = **GitHub Actions**).
+
+Alur otomatis `.github/workflows/deploy.yml` setiap `git push` ke `main`:
+
+1. `npm ci`
+2. `npm run build` (Tailwind → `assets/css/tailwind.css`)
+3. kumpulkan artefak statis dengan `rsync` (tanpa `node_modules`, `src`, `scripts`)
+4. `actions/deploy-pages` mempublikasikan ke Pages
+
+```bash
+git add -A
+git commit -m "Update konten portofolio"
+git push            # build + deploy otomatis, sekitar 1–2 menit
+```
+
+- Pantau: tab **Actions** di repo, atau `gh run list` bila GitHub CLI terpasang.
+- Deploy manual: **Actions → Deploy portfolio ke GitHub Pages → Run workflow**.
+- Karena ini *user site* (`hanggersukmapd.github.io`), situs berada di root domain
+  sehingga seluruh tautan relatif aman.
+- Domain kustom: **Settings → Pages → Custom domain**, lalu sesuaikan `canonical`,
+  `og:url`, `og:image`, `robots.txt`, dan `sitemap.xml`.
+
+### Alternatif host lain
 
 | Platform | Langkah singkat |
 | --- | --- |
-| **GitHub Pages** | Push ke repo → Settings → Pages → pilih branch `main` dan folder root. |
-| **Netlify / Vercel** | Hubungkan repo, framework preset "Other", build command kosong, output directory `.` |
-| **Cloudflare Pages** | Upload folder, tanpa build step. |
+| **Netlify / Vercel** | Hubungkan repo, build command `npm run build`, publish directory `.` |
+| **Cloudflare Pages** | Hubungkan repo atau unggah folder setelah `npm run build`. |
 
 > **Catatan build:** `assets/css/tailwind.css` adalah artefak hasil `npm run build`
 > (±16 KB minified). Jangan mengeditnya langsung — ubah markup/kelas lalu build

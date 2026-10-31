@@ -1,0 +1,9 @@
+/* =========================================================================
+   Sumber Tailwind untuk build statis.
+   Jalankan `npm run build` (minify) atau `npm run dev` (watch).
+   Output: assets/css/tailwind.css
+   ========================================================================= */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

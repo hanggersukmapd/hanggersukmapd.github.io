@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Ganti URL di bawah bila domain final berbeda.
+Sitemap: https://hanggersukmapd.github.io/sitemap.xml

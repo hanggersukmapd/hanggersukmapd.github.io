@@ -1,0 +1,67 @@
+name: Deploy portfolio ke GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Hanya satu deploy berjalan; yang lama dibatalkan.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependency
+        run: npm ci
+
+      # Membangun ulang Tailwind agar CSS selalu sinkron dengan markup.
+      - name: Build CSS
+        run: npm run build
+
+      # Publikasikan hanya berkas yang dibutuhkan pengunjung.
+      - name: Siapkan artefak statis
+        run: |
+          mkdir -p _site
+          rsync -av \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'node_modules' \
+            --exclude 'src' \
+            --exclude 'scripts' \
+            --exclude '_site' \
+            ./ _site/
+          echo "--- isi artefak ---"
+          find _site -maxdepth 2 -type f | sort
+
+      - name: Upload artefak Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy ke GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

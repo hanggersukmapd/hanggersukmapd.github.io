@@ -1,0 +1,12 @@
+# Dependency build (Tailwind CLI)
+node_modules/
+
+# Output build bila ingin dibangun ulang di CI
+# assets/css/tailwind.css
+
+# Berkas sementara
+scripts/*.tmp.html
+.serve-port
+.serve-log
+.DS_Store
+Thumbs.db

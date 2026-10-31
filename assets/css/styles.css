@@ -1,0 +1,829 @@
+/* =========================================================================
+   Hangger Sukma Prima Darsono — Portfolio
+   assets/css/styles.css
+
+   Berisi:
+   1. Design tokens (dark / light)  → mendukung Dark/Light Mode Toggle
+   2. Lapisan latar belakang (gradient glow + grid halus)
+   3. Komponen: glassmorphism, bento card, tombol, chip, filter, timeline
+   4. Modal / drawer, toast, form, typing caret
+   5. Reveal on scroll + aksesibilitas (prefers-reduced-motion)
+   ========================================================================= */
+
+/* ------------------------------------------------------------------
+   1. DESIGN TOKENS
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: dark;
+
+  --bg: #030616;
+  --text: #e6ecf7;
+  --text-muted: #9aa8bd;
+  --text-dim: #6b7a90;
+
+  --border: rgba(148, 163, 184, 0.14);
+  --border-strong: rgba(148, 163, 184, 0.30);
+
+  --surface: rgba(255, 255, 255, 0.035);
+  --surface-hover: rgba(255, 255, 255, 0.065);
+  --surface-solid: #0a1024;
+  --field-bg: rgba(255, 255, 255, 0.045);
+
+  --accent: #818cf8;
+  --accent-strong: #6366f1;
+  --accent-2: #22d3ee;
+
+  --grid-line: rgba(148, 163, 184, 0.055);
+  --glow-a: rgba(99, 102, 241, 0.22);
+  --glow-b: rgba(34, 211, 238, 0.14);
+
+  --shadow-card: 0 26px 60px -34px rgba(2, 6, 23, 0.95);
+  --shadow-pop: 0 40px 90px -40px rgba(2, 6, 23, 0.9);
+
+  --backdrop: rgba(3, 6, 22, 0.74);
+  --success: #34d399;
+  --danger: #fb7185;
+}
+
+html.light {
+  color-scheme: light;
+
+  --bg: #f5f7fb;
+  --text: #0f172a;
+  --text-muted: #4c5b73;
+  --text-dim: #6b7a90;
+
+  --border: rgba(15, 23, 42, 0.10);
+  --border-strong: rgba(15, 23, 42, 0.22);
+
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-hover: rgba(255, 255, 255, 0.95);
+  --surface-solid: #ffffff;
+  --field-bg: rgba(255, 255, 255, 0.9);
+
+  --accent: #4f46e5;
+  --accent-strong: #4338ca;
+  --accent-2: #0e7490;
+
+  --grid-line: rgba(15, 23, 42, 0.045);
+  --glow-a: rgba(99, 102, 241, 0.16);
+  --glow-b: rgba(8, 145, 178, 0.12);
+
+  --shadow-card: 0 20px 45px -28px rgba(15, 23, 42, 0.30);
+  --shadow-pop: 0 40px 90px -45px rgba(15, 23, 42, 0.35);
+
+  --backdrop: rgba(15, 23, 42, 0.40);
+  --success: #047857;
+  --danger: #be123c;
+}
+
+/* ------------------------------------------------------------------
+   BASE
+   ------------------------------------------------------------------ */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+html body {
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--text);
+}
+
+/* Scrollbar halus (Chromium/WebKit) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent); background-clip: content-box; }
+
+/* ------------------------------------------------------------------
+   2. LAPISAN LATAR BELAKANG
+   ------------------------------------------------------------------ */
+.bg-layers {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Glow radial */
+.bg-layers::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(42rem 34rem at 82% 4%, var(--glow-a), transparent 62%),
+    radial-gradient(38rem 30rem at 6% 12%, var(--glow-b), transparent 62%),
+    radial-gradient(46rem 40rem at 50% 108%, var(--glow-a), transparent 65%);
+  animation: aurora 22s ease-in-out infinite alternate;
+}
+
+/* Grid halus */
+.bg-layers::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at 50% 0%, #000 0%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 50% 0%, #000 0%, transparent 78%);
+}
+
+@keyframes aurora {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-2%, 1.5%, 0) scale(1.04); }
+  100% { transform: translate3d(2%, -1%, 0) scale(1.02); }
+}
+
+/* ------------------------------------------------------------------
+   3. KOMPONEN DASAR
+   ------------------------------------------------------------------ */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: var(--shadow-card);
+}
+
+.glass-flat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+.glass-hover {
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.4s ease;
+}
+
+.glass-hover:hover,
+.glass-hover:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+  box-shadow: var(--shadow-pop);
+  outline: none;
+}
+
+/* Sorotan mengikuti kursor */
+.spotlight { position: relative; isolation: isolate; }
+
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    20rem circle at var(--mx, 50%) var(--my, 0%),
+    color-mix(in srgb, var(--accent) 22%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.spotlight:hover::before { opacity: 1; }
+
+/* Teks */
+.muted { color: var(--text-muted); }
+.dim { color: var(--text-dim); }
+
+.gradient-text {
+  background-image: linear-gradient(100deg, var(--accent) 0%, var(--accent-2) 55%, var(--accent) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sheen 9s linear infinite;
+}
+
+@keyframes sheen {
+  to { background-position: 200% center; }
+}
+
+/* Judul section */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 1.75rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent));
+}
+
+.section-title {
+  font-size: clamp(1.85rem, 1.2rem + 2vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-top: 0.75rem;
+}
+
+/* Chip / badge */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.chip-accent {
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 18%, transparent);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  50% { opacity: 0.35; }
+}
+
+/* Tombol */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.72rem 1.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  color: #fff;
+  background-image: linear-gradient(135deg, #6366f1, #4f46e5 55%, #4338ca);
+  box-shadow: 0 14px 34px -16px rgba(79, 70, 229, 0.95);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 20px 44px -16px rgba(99, 102, 241, 0.95);
+  transform: translateY(-2px);
+}
+
+html.light .btn-primary {
+  background-image: linear-gradient(135deg, #4f46e5, #4338ca);
+}
+
+.btn-ghost {
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.btn-icon:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+
+/* Pastikan atribut hidden selalu menang atas display utility */
+[hidden] { display: none !important; }
+
+/* Fokus keyboard yang konsisten */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+}
+
+/* Header mengambang */
+.site-header {
+  transition: padding 0.3s ease;
+}
+
+.header-pill {
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.site-header[data-scrolled="true"] .header-pill {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-pop);
+}
+
+/* Navigasi */
+.nav-link {
+  position: relative;
+  padding: 0.35rem 0.15rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.25s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover { color: var(--text); }
+.nav-link:hover::after { transform: scaleX(1); }
+
+.nav-link[aria-current="true"] { color: var(--text); }
+.nav-link[aria-current="true"]::after { transform: scaleX(1); }
+
+/* Filter pills */
+.filter-btn {
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.45rem 0.95rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.filter-btn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.filter-btn[aria-pressed="true"] {
+  color: #fff;
+  border-color: transparent;
+  background-image: linear-gradient(135deg, #6366f1, #4f46e5);
+  box-shadow: 0 10px 26px -14px rgba(79, 70, 229, 0.95);
+}
+
+html.light .filter-btn[aria-pressed="true"] {
+  background-image: linear-gradient(135deg, #4f46e5, #4338ca);
+}
+
+/* Animasi item yang difilter */
+.pop-in {
+  animation: pop-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Timeline pengalaman */
+.timeline {
+  position: relative;
+  padding-left: 1.75rem;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0.32rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 1px;
+  background: linear-gradient(180deg, var(--accent), transparent);
+  opacity: 0.5;
+}
+
+.timeline-item { position: relative; }
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -1.75rem;
+  top: 0.55rem;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* Baris info kecil */
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ------------------------------------------------------------------
+   4. MODAL / DRAWER + TOAST + FORM
+   ------------------------------------------------------------------ */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: end center;
+  padding: 0;
+}
+
+.modal[hidden] { display: none; }
+
+@media (min-width: 640px) {
+  .modal { place-items: center; padding: 1.5rem; }
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--backdrop);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  animation: fade-in 0.25s ease both;
+  cursor: pointer;
+}
+
+.modal-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 52rem;
+  max-height: 92vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem 1.5rem 0 0;
+  box-shadow: var(--shadow-pop);
+  animation: slide-up 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (min-width: 640px) {
+  .modal-panel { border-radius: 1.5rem; max-height: 86vh; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(28px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+
+body.modal-open { overflow: hidden; }
+
+/* Toast */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 14rem;
+  max-width: min(24rem, calc(100vw - 2rem));
+  border-radius: 0.9rem;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-solid);
+  padding: 0.7rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text);
+  box-shadow: var(--shadow-pop);
+  animation: toast-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.toast.is-leaving { animation: toast-out 0.25s ease forwards; }
+
+.toast-icon { color: var(--success); flex-shrink: 0; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(8px) scale(0.98); }
+}
+
+/* Form */
+.field-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.field {
+  width: 100%;
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--field-bg);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.field::placeholder { color: var(--text-dim); }
+
+.field:hover { border-color: var(--border-strong); }
+
+.field:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.field[aria-invalid="true"] {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+.field-error {
+  display: none;
+  margin-top: 0.35rem;
+  font-size: 0.74rem;
+  color: var(--danger);
+}
+
+.field-error.is-visible { display: block; }
+
+/* Caret efek ketik */
+.caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.05em;
+  margin-left: 0.15rem;
+  vertical-align: text-bottom;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  animation: blink 1.05s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ------------------------------------------------------------------
+   4b. SKIP LINK, KEYBOARD HINT, COMMAND PALETTE
+   ------------------------------------------------------------------ */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 100;
+  transform: translate(-50%, -160%);
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-solid);
+  color: var(--text);
+  padding: 0.55rem 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-pop);
+  transition: transform 0.25s ease;
+}
+
+.skip-link:focus { transform: translate(-50%, 0); }
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0 0.05rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.35rem;
+  background: var(--field-bg);
+  padding: 0.06rem 0.32rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.64rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* Utilities Tailwind dimuat lebih dulu, jadi display dari kelas komponen
+   mengalahkan utility seperti `lg:hidden`. Tombol menu disembunyikan eksplisit. */
+@media (min-width: 1024px) {
+  #nav-toggle { display: none; }
+}
+
+.btn-icon[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-icon[disabled]:hover {
+  transform: none;
+  color: var(--text-muted);
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+/* Command palette */
+.palette-modal {
+  place-items: start center;
+  padding: 10vh 1rem 0;
+}
+
+@media (min-width: 640px) {
+  .palette-modal { padding: 14vh 1.5rem 0; }
+}
+
+.palette {
+  width: 100%;
+  max-width: 34rem;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  padding: 0;
+  box-shadow: var(--shadow-pop);
+  animation: slide-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.palette-input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.palette-input::placeholder { color: var(--text-dim); }
+
+.palette-group {
+  padding: 0.4rem 0.7rem 0.25rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.palette-item:hover,
+.palette-item[aria-selected="true"] {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.palette-item .hint {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.64rem;
+  color: var(--text-dim);
+}
+
+/* ------------------------------------------------------------------
+   5. REVEAL ON SCROLL & AKSESIBILITAS
+   ------------------------------------------------------------------ */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Hormati preferensi pengguna */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal { opacity: 1; transform: none; }
+  .bg-layers::before { animation: none; }
+  .gradient-text { animation: none; }
+}
+
+/* Fallback bila color-mix tidak didukung (browser lama) */
+@supports not (background: color-mix(in srgb, red 50%, transparent)) {
+  .spotlight::before { background: radial-gradient(20rem circle at var(--mx, 50%) var(--my, 0%), rgba(129, 140, 248, 0.18), transparent 70%); }
+  .chip-accent { background: rgba(129, 140, 248, 0.12); border-color: rgba(129, 140, 248, 0.4); }
+  .field:focus { box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.18); }
+}
+
+/* Print: buang dekorasi agar portofolio tetap terbaca */
+@media print {
+  .bg-layers, .modal, #toast-region, #scroll-progress { display: none !important; }
+  html body { background: #fff; color: #000; }
+  .glass, .glass-flat { box-shadow: none; border-color: #ddd; background: #fff; }
+}

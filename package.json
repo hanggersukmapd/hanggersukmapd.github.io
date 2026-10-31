@@ -1,0 +1,15 @@
+{
+  "name": "hsp-portfolio",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Portofolio Hangger Sukma Prima Darsono — HTML, Tailwind CSS (build statis), JavaScript murni.",
+  "scripts": {
+    "dev": "tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --watch",
+    "build": "tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --minify",
+    "serve": "python -m http.server 8000",
+    "serve:lan": "python -m http.server 8080 --bind 0.0.0.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}
